@@ -4,7 +4,6 @@ let targetUrl = "https://test.test";
 
 let listenerEnabled = false;
 
-// Listener for web requests
 function requestListener(details) {
   if (details.url === targetUrl) {
     try {
@@ -15,19 +14,12 @@ function requestListener(details) {
       });
     } catch (error) {
       console.log(error);
-    }
-    finally{
+    } finally {
       chrome.webRequest.onCompleted.removeListener(requestListener);
       chrome.storage.local.set({ listenerEnabled: false });
     }
   }
 }
-
-// Start listening for web requests
-// chrome.webRequest.onCompleted.addListener(requestListener, {
-//   urls: [targetUrl],
-// });
-
 
 function captureResponse(url) {
   fetch(url)
@@ -54,17 +46,22 @@ function captureResponse(url) {
 
 // Enable or disable the listener based on messages from the popup
 chrome.runtime.onMessage.addListener((message) => {
-  console.log(message)
-  if (message.action === 'enableListener' && !listenerEnabled) {
-      chrome.webRequest.onCompleted.addListener(
-          requestListener,
-          { urls: [targetUrl] }
-      );
-      listenerEnabled = true;
-      chrome.storage.local.set({ listenerEnabled: true });
-  } else if (message.action === 'disableListener' && listenerEnabled) {
-      chrome.webRequest.onCompleted.removeListener(requestListener);
-      listenerEnabled = false;
-      chrome.storage.local.set({ listenerEnabled: false });
+  console.log(message);
+  if (message.action === "enableListener" && !listenerEnabled) {
+    chrome.webRequest.onCompleted.addListener(requestListener, {
+      urls: [targetUrl],
+    });
+    listenerEnabled = true;
+    chrome.storage.local.set({ listenerEnabled: true });
+  } else if (message.action === "disableListener" && listenerEnabled) {
+    chrome.webRequest.onCompleted.removeListener(requestListener);
+    listenerEnabled = false;
+    chrome.storage.local.set({ listenerEnabled: false });
   }
 });
+
+//TODO: 
+// - replace checkbox with download button that is only clickable when data is available
+// - make UI (popup.html) a little bit cleaner and allow inputting urls (also sync with storage)
+// - add selection for different data formats and allow exporting in those (csv, yaml, json)
+// - specific use case -> credit card data exporting
