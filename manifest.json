@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Response Exporter",
+  "version": "1.0",
+  "permissions": [
+    "webRequest",
+    "activeTab",
+    "downloads",
+    "scripting",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["<all_urls>", "*://*/*"]
+}
