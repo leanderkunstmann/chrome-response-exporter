@@ -2,6 +2,9 @@
 
 const targetUrl = "fixed url";
 
+function getTimestamp() {
+  return new Date().toISOString().slice(0, 16).replace('T', ' ');
+}
 
 function exportButton(tabId, url) {
   try {
@@ -25,7 +28,7 @@ function captureResponse(url) {
         const downloadUrl = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = downloadUrl;
-        a.download = "export.json";
+        a.download = `export-${getTimestamp()}.json`;
         document.body.appendChild(a);
         a.click();
         a.remove();
