@@ -1,24 +1,20 @@
-// listen for request
+// service-worker.js
 
-let targetUrl = "https://test.test";
+const targetUrl = "fixed url";
 
-let listenerEnabled = false;
 
-function requestListener(details) {
-  if (details.url === targetUrl) {
-    try {
-      chrome.scripting.executeScript({
-        target: { tabId: details.tabId },
-        func: captureResponse,
-        args: [details.url],
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      chrome.webRequest.onCompleted.removeListener(requestListener);
-      chrome.storage.local.set({ listenerEnabled: false });
-    }
+function exportButton(tabId, url) {
+  try {
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    func: captureResponse,
+    args: [url], // change to targetURL for ignoring input
+  });
+  } catch (error) {
+    console.log(error);
+  } finally {
   }
+
 }
 
 function captureResponse(url) {
@@ -36,32 +32,12 @@ function captureResponse(url) {
         URL.revokeObjectURL(downloadUrl);
       } catch (error) {
         console.log(error);
-      } finally {
-        // Stop listening for web requests after the download is initiated
-        chrome.webRequest.onCompleted.removeListener(requestListener);
-        chrome.storage.local.set({ listenerEnabled: false });
       }
     });
 }
 
-// Enable or disable the listener based on messages from the popup
 chrome.runtime.onMessage.addListener((message) => {
-  console.log(message);
-  if (message.action === "enableListener" && !listenerEnabled) {
-    chrome.webRequest.onCompleted.addListener(requestListener, {
-      urls: [targetUrl],
-    });
-    listenerEnabled = true;
-    chrome.storage.local.set({ listenerEnabled: true });
-  } else if (message.action === "disableListener" && listenerEnabled) {
-    chrome.webRequest.onCompleted.removeListener(requestListener);
-    listenerEnabled = false;
-    chrome.storage.local.set({ listenerEnabled: false });
+  if (message.action === 'executeServiceWorkerFunction') {
+    exportButton(message.tabId, message.targetUrl);
   }
 });
-
-//TODO: 
-// - replace checkbox with download button that is only clickable when data is available
-// - make UI (popup.html) a little bit cleaner and allow inputting urls (also sync with storage)
-// - add selection for different data formats and allow exporting in those (csv, yaml, json)
-// - specific use case -> credit card data exporting

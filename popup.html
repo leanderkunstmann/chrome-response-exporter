@@ -10,11 +10,17 @@
     </style>
   </head>
   <body>
-    <label>
-      <input type="checkbox" id="toggleListener" />
-      Enable export of data
-    </label>
-
+    <label for="url">URL:</label>
+    <input type="text" id="targetUrl" name="url"></input>
+    <br><br>
+    <label for="sel">Export format:</label>
+    <select name="sel" id="selection" form="carform">
+      <option value="csv">csv</option>
+      <option value="json" disabled>json</option>
+    </select>
+    <br><br>
+    <button id="exportButton" type="button" style="background-color: blue; color: white;">Export</button>
+    </button>
     <script src="popup.js"></script>
   </body>
 </html>
