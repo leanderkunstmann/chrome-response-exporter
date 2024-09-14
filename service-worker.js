@@ -2,6 +2,8 @@
 
 const targetUrl = "fixed url";
 
+let authHeader = ""
+
 function getTimestamp() {
   return new Date().toISOString().slice(0, 16).replace("T", " ");
 }
@@ -39,7 +41,13 @@ function exportButton(tabId, url) {
 }
 
 function captureResponse(url) {
-  fetch(url)
+  fetch(url, {
+    method: 'GET',  // Assuming a GET request
+    headers: {
+      'Authorization': authHeader,  // Add your token here
+      'Content-Type': 'application/json'  // Optional, depending on the API
+    }
+  })
     .then((response) => response.blob())
     .then((blob) => {
       try {
@@ -60,16 +68,20 @@ function captureResponse(url) {
 function requestListener(details) {
   if (details.url === targetUrl) {
     try {
-      console.log(details)
+      let header = details.requestHeaders.find(header => header.name.toLowerCase() === 'authorization');
+      authHeader = header.value
+      if (authHeader) {
+        console.log("Authorization Header:", authHeader);
+      }
     } catch (error) {
       console.log(error);
     } finally {
-      chrome.webRequest.onCompleted.removeListener(requestListener);
+      chrome.webRequest.onBeforeSendHeaders.removeListener(requestListener);
     }
   }
 }
 
-chrome.webRequest.onCompleted.addListener(requestListener, {
+chrome.webRequest.onBeforeSendHeaders.addListener(requestListener, {
   urls: [targetUrl],
 });
 
